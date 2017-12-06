@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-var quizController = require('../controllers/quiz');
+const quizController = require('../controllers/quiz');
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
@@ -12,6 +12,10 @@ router.get('/', (req, res, next) => {
 router.get('/author', (req, res, next) => {
     res.render('author');
 });
+
+
+// Autoload for routes using :quizId
+router.param('quizId', quizController.load);
 
 
 // Routes for the resource /quizzes

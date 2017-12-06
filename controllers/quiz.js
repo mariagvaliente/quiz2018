@@ -1,6 +1,20 @@
 const models = require("../models");
 
 
+// Autoload el quiz asociado a :quizId
+exports.load = (req, res, next, quizId) => {
+
+    const quiz = models.quiz.findById(Number(quizId));
+
+    if (quiz) {
+        req.quiz = quiz;
+        next();
+    } else {
+        throw new Error('There is no quiz with  id=' + quizId);
+    }
+};
+
+
 // GET /quizzes
 exports.index = (req, res, next) => {
 
@@ -13,15 +27,10 @@ exports.index = (req, res, next) => {
 // GET /quizzes/:quizId
 exports.show = (req, res, next) => {
 
-    const quizId = Number(req.params.quizId);
+    const {quiz} = req;
 
-    const quiz = models.quiz.findById(quizId);
+    res.render('quizzes/show', {quiz});
 
-    if (quiz) {
-        res.render('quizzes/show', {quiz});
-    } else {
-        next(new Error('There is no quiz with id=' + quizId));
-    }
 };
 
 
@@ -39,13 +48,15 @@ exports.new = (req, res, next) => {
 // POST /quizzes/create
 exports.create = (req, res, next) => {
 
+    const {question, answer} = req.body;
+
     let quiz = {
-        question: req.body.question,
-        answer: req.body.answer
+        question,
+        answer
     };
 
     // Validates that they are no empty
-    if (!quiz.question || !quiz.answer) {
+    if (!question || !answer) {
         res.render('quizzes/new', {quiz});
         return;
     }
@@ -60,93 +71,61 @@ exports.create = (req, res, next) => {
 // GET /quizzes/:quizId/edit
 exports.edit = (req, res, next) => {
 
-    const quizId = Number(req.params.quizId);
+    const {quiz} = req;
 
-    const quiz = models.quiz.findById(quizId);
-
-    if (quiz) {
-        res.render('quizzes/edit', {quiz});
-    } else {
-        next(new Error('There is no quiz with id=' + quizId));
-    }
+    res.render('quizzes/edit', {quiz});
 };
 
 
 // PUT /quizzes/:quizId
 exports.update = (req, res, next) => {
 
-    const quizId = Number(req.params.quizId);
+    let {quiz, body} = req;
 
-    const quiz = models.quiz.findById(quizId);
+    quiz.question = body.question;
+    quiz.answer = body.answer;
 
-    if (quiz) {
-        quiz.question = req.body.question;
-        quiz.answer = req.body.answer;
+    models.quiz.update(quiz);
 
-        models.quiz.update(quiz);
-
-        res.redirect('/quizzes/' + quizId);
-    } else {
-        next(new Error('There is no quiz with id=' + quizId));
-    }
+    res.redirect('/quizzes/' + quiz.id);
 };
 
 
 // DELETE /quizzes/:quizId
 exports.destroy = (req, res, next) => {
 
-    const quizId = Number(req.params.quizId);
+    models.quiz.destroy(req.quiz);
 
-    const quiz = models.quiz.findById(quizId);
-
-    if (quiz) {
-        models.quiz.destroy(quiz);
-
-        res.redirect('/quizzes');
-    } else {
-        next(new Error('There is no quiz with id=' + quizId));
-    }
+    res.redirect('/quizzes');
 };
 
 
 // GET /quizzes/:quizId/play
 exports.play = (req, res, next) => {
 
-    const answer = req.query.answer || '';
+    const {quiz, query} = req;
 
-    const quizId = Number(req.params.quizId);
+    const answer = query.answer || '';
 
-    const quiz = models.quiz.findById(quizId);
-
-    if (quiz) {
-        res.render('quizzes/play', {
-            quiz: quiz,
-            answer: answer
-        });
-    } else {
-        next(new Error('There is no quiz with id=' + quizId));
-    }
+    res.render('quizzes/play', {
+        quiz,
+        answer
+    });
 };
 
 
 // GET /quizzes/:quizId/check
 exports.check = (req, res, next) => {
 
-    const answer = req.query.answer || "";
+    const {quiz, query} = req;
 
-    const quizId = Number(req.params.quizId);
-
-    const quiz = models.quiz.findById(quizId);
+    const answer = query.answer || "";
 
     const result = answer.toLowerCase().trim() === quiz.answer.toLowerCase().trim();
 
-    if (quiz) {
-        res.render('quizzes/result', {
-            quiz: quiz,
-            result: result,
-            answer: answer
-        });
-    } else {
-        next(new Error('There is no quiz with id=' + quizId));
-    }
+    res.render('quizzes/result', {
+        quiz,
+        result,
+        answer
+    });
 };
