@@ -3,6 +3,7 @@ const router = express.Router();
 
 const quizController = require('../controllers/quiz');
 const tipController = require('../controllers/tip');
+const userController = require('../controllers/user');
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
@@ -17,6 +18,17 @@ router.get('/author', (req, res, next) => {
 
 // Autoload for routes using :quizId
 router.param('quizId', quizController.load);
+router.param('userId', userController.load);
+
+
+// Routes for the resource /users
+router.get('/users',                    userController.index);
+router.get('/users/:userId(\\d+)',      userController.show);
+router.get('/users/new',                userController.new);
+router.post('/users',                   userController.create);
+router.get('/users/:userId(\\d+)/edit', userController.edit);
+router.put('/users/:userId(\\d+)',      userController.update);
+router.delete('/users/:userId(\\d+)',   userController.destroy);
 
 
 // Routes for the resource /quizzes
