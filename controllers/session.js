@@ -31,6 +31,26 @@ exports.deleteExpiredUserSession = (req, res, next) => {
 };
 
 
+// Middleware: Login required.
+//
+// If the user is logged in previously then there will exists
+// the req.session.user object, so I continue with the others
+// middlewares or routes.
+// If req.session.user does not exist, then nobody is logged,
+// so I redirect to the login screen.
+// I keep on redir which is my url to automatically return to
+// that url after login; but if redir already exists then
+// this value is maintained.
+//
+exports.loginRequired = function (req, res, next) {
+    if (req.session.user) {
+        next();
+    } else {
+        res.redirect('/session?redir=' + (req.param('redir') || req.url));
+    }
+};
+
+
 /*
  * User authentication: Checks that the user is registered.
  *
