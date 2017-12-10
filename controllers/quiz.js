@@ -28,14 +28,24 @@ exports.load = (req, res, next, quizId) => {
 // GET /quizzes
 exports.index = (req, res, next) => {
 
-    let countOptions = {};
+    let countOptions = {
+        where: {}
+    };
+
+    let title = "Questions";
 
     // Search:
     const search = req.query.search || '';
     if (search) {
         const search_like = "%" + search.replace(/ +/g,"%") + "%";
 
-        countOptions.where = {question: { [Op.like]: search_like }};
+        countOptions.where.question = { [Op.like]: search_like };
+    }
+
+    // If there exists "req.user", then only the quizzes of that user are shown
+    if (req.user) {
+        countOptions.where.authorId = req.user.id;
+        title = "Questions of " + req.user.username;
     }
 
     models.quiz.count(countOptions)
@@ -63,8 +73,9 @@ exports.index = (req, res, next) => {
     })
     .then(quizzes => {
         res.render('quizzes/index.ejs', {
-            quizzes,
-            search
+            quizzes, 
+            search,
+            title
         });
     })
     .catch(error => next(error));

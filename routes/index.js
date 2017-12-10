@@ -44,6 +44,8 @@ router.get('/users/:userId(\\d+)/edit', userController.edit);
 router.put('/users/:userId(\\d+)',      userController.update);
 router.delete('/users/:userId(\\d+)',   userController.destroy);
 
+router.get('/users/:userId(\\d+)/quizzes', quizController.index);
+
 
 // Routes for the resource /quizzes
 router.get('/quizzes',                     quizController.index);
