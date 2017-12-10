@@ -7,7 +7,12 @@ const paginate = require('../helpers/paginate').paginate;
 // Autoload the quiz with id equals to :quizId
 exports.load = (req, res, next, quizId) => {
 
-    models.quiz.findById(quizId, { include: [ models.tip ] })
+    models.quiz.findById(quizId, {
+        include: [
+            models.tip,
+            {model: models.user, as: 'author'}
+        ]
+    })
     .then(quiz => {
         if (quiz) {
             req.quiz = quiz;
@@ -50,7 +55,8 @@ exports.index = (req, res, next) => {
         const findOptions = {
             ...countOptions,
             offset: items_per_page * (pageno - 1),
-            limit: items_per_page
+            limit: items_per_page,
+            include: [{model: models.user, as: 'author'}]
         };
 
         return models.quiz.findAll(findOptions);
@@ -90,13 +96,16 @@ exports.create = (req, res, next) => {
 
     const {question, answer} = req.body;
 
+    const authorId = req.session.user && req.session.user.id || 0;
+
     const quiz = models.quiz.build({
         question,
-        answer
+        answer,
+        authorId
     });
 
     // Saves only the fields question and answer into the DDBB
-    quiz.save({fields: ["question", "answer"]})
+    quiz.save({fields: ["question", "answer", "authorId"]})
     .then(quiz => {
         req.flash('success', 'Quiz created successfully.');
         res.redirect('/quizzes/' + quiz.id);
