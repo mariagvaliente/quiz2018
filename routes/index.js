@@ -8,6 +8,7 @@ const quizController = require('../controllers/quiz');
 const tipController = require('../controllers/tip');
 const userController = require('../controllers/user');
 const sessionController = require('../controllers/session');
+const favouriteController = require('../controllers/favourite');
 
 //-----------------------------------------------------------
 
@@ -36,11 +37,10 @@ function saveBack(req, res, next) {
 // Restoration routes are GET routes that do not end in:
 //   /new, /edit, /play, /check, /session, or /:id.
 router.get([
-    '/',
-    '/author',
-    '/users',
-    '/users/:id(\\d+)/quizzes',
-    '/quizzes'], saveBack);
+'/','/author',
+'/users',
+'/users/:id(\\d+)/quizzes',
+'/quizzes'],                 saveBack);
 
 //-----------------------------------------------------------
 
@@ -91,6 +91,7 @@ router.delete('/users/:userId(\\d+)',
     sessionController.adminOrMyselfRequired,
 	userController.destroy);
 
+
 router.get('/users/:userId(\\d+)/quizzes',
     sessionController.loginRequired,
     quizController.index);
@@ -122,14 +123,14 @@ router.delete('/quizzes/:quizId(\\d+)',
     quizController.adminOrAuthorRequired,
 	quizController.destroy);
 
-router.get('/quizzes/:quizId(\\d+)/play',  quizController.play);
-router.get('/quizzes/:quizId(\\d+)/check', quizController.check);
+router.get('/quizzes/:quizId(\\d+)/play',
+	quizController.play);
+router.get('/quizzes/:quizId(\\d+)/check',
+	quizController.check);
 
 
 
-router.post('/quizzes/:quizId(\\d+)/tips',
-    sessionController.loginRequired,
-    tipController.create);
+router.post('/quizzes/:quizId(\\d+)/tips',     sessionController.loginRequired,tipController.create);
 router.put('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)/accept',
     sessionController.loginRequired,
     quizController.adminOrAuthorRequired,
@@ -138,6 +139,17 @@ router.delete('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)',
     sessionController.loginRequired,
     quizController.adminOrAuthorRequired,
     tipController.destroy);
+
+
+// Routes for the resource favourites of a user
+router.put('/users/:userId(\\d+)/favourites/:quizId(\\d+)',
+    sessionController.loginRequired,
+    sessionController.adminOrMyselfRequired,
+    favouriteController.add);
+router.delete('/users/:userId(\\d+)/favourites/:quizId(\\d+)',
+    sessionController.loginRequired,
+    sessionController.adminOrMyselfRequired,
+    favouriteController.del);
 
 
 module.exports = router;

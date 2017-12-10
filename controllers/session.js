@@ -65,6 +65,21 @@ exports.adminRequired = (req, res, next) => {
     }
 };
 
+
+// MW that allows to pass only if the logged in user is:
+// - the user to manage.
+exports.myselfRequired = (req, res, next) => {
+
+    const isMyself = req.user.id === req.session.user.id;
+
+    if (isMyself) {
+        next();
+    } else {
+        console.log('Forbidden route: is not the user logged.');
+        res.send(403);    }
+};
+
+
 // MW that allows to pass only if the logged in user is:
 // - admin
 // - or is the user to be managed.

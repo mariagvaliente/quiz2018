@@ -44,6 +44,11 @@ a {
     float: right;
 }
 
+.stars {
+    float: left;
+    clear: both;
+}
+
 /* ------------------------- */
 
 .wideRow {
