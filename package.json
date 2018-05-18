@@ -13,7 +13,8 @@
     "seed_heroku": "heroku run ./node_modules/.bin/sequelize db:seed:all --url \\$DATABASE_URL",
     "reset_heroku": "heroku pg:reset DATABASE",
     "mon_heroku": "heroku maintenance:on",
-    "moff_heroku": "heroku maintenance:off"
+    "moff_heroku": "heroku maintenance:off",
+    "test": "NODE_ENV=testing mocha -R spec"
   },
   "engines": {
     "node": "8.9.1",
@@ -40,6 +41,8 @@
     "supervisor": "^0.12.0"
   },
   "devDependencies": {
-    "sqlite3": "^3.1.13"
+    "mocha": "^5.1.1",
+    "sqlite3": "^3.1.13",
+    "zombie": "^6.1.2"
   }
 }
