@@ -9,7 +9,7 @@ exports.load = (req, res, next, quizId) => {
 
     models.quiz.findById(quizId, {
         include: [
-            models.tip,
+            {model: models.tip, include:[{model: models.user, as: 'author'}]},
             {model: models.user, as: 'author'}
         ]
     })
@@ -224,4 +224,75 @@ exports.check = (req, res, next) => {
         result,
         answer
     });
+};
+
+exports.randomJuega = (req,res,next) => {
+
+
+    if (req.session.preguntas!=undefined) {
+        var points = req.session.points;
+        var aleatorio = Math.floor(Math.random()*req.session.preguntas.length);
+        req.session.indice = aleatorio;
+        res.render('quizzes/random_play', {
+            quiz: req.session.preguntas[aleatorio],
+            score: points
+        });
+    } else {
+        req.session.points = 0;
+        var points = req.session.points;
+        models.quiz.findAll()
+            .then(quizzes => {
+            req.session.preguntas=quizzes;
+            var aleatorio = Math.floor(Math.random()*req.session.preguntas.length);
+            req.session.indice = aleatorio;
+        res.render('quizzes/random_play', {
+            quiz: req.session.preguntas[aleatorio],
+            score: points
+        })
+    })
+    .catch(error => next(error));
+    }
+};
+exports.randomComprueba = (req, res, next) => {
+
+    var check = false;
+
+    if (req.query.answer.toLowerCase().trim()!=req.session.preguntas[req.session.indice].answer.toLowerCase().trim()) {
+        var final_points = req.session.points;
+        req.session.points = 0;
+        models.quiz.findAll()
+            .then(quizzes => {
+            req.session.preguntas = quizzes;
+    })
+    .then(() => {
+            res.render('quizzes/random_result', {
+            score: final_points,
+            answer: req.query.answer,
+            result: check
+        });
+    });
+    } else {
+        check = true;
+        req.session.points++;
+        req.session.preguntas.splice(req.session.indice, 1);
+        if(req.session.preguntas.length != 0){
+            res.render('quizzes/random_result', {
+                score: req.session.points,
+                answer: req.query.answer,
+                result: check
+            });
+        } else {
+            models.quiz.findAll()
+                .then(quizzes => {
+                req.session.preguntas = quizzes;
+        })
+        .then(() => {
+                res.render('quizzes/random_nomore', {
+                score: req.session.points
+            });
+        });
+        }
+
+    }
+
 };

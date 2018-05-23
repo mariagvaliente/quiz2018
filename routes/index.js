@@ -121,10 +121,8 @@ router.get('/quizzes/:quizId(\\d+)/play',  quizController.play);
 router.get('/quizzes/:quizId(\\d+)/check', quizController.check);
 
 
-
-router.post('/quizzes/:quizId(\\d+)/tips',
-    sessionController.loginRequired,
-    tipController.create);
+router.get('/quizzes/:quizId(\\d+)/tips/new',  sessionController.loginRequired,tipController.new);
+router.post('/quizzes/:quizId(\\d+)/tips',     sessionController.loginRequired,tipController.create);
 router.put('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)/accept',
     sessionController.loginRequired,
     quizController.adminOrAuthorRequired,
@@ -133,6 +131,10 @@ router.delete('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)',
     sessionController.loginRequired,
     quizController.adminOrAuthorRequired,
     tipController.destroy);
+
+
+router.get('/quizzes/randomcheck/:quizId(\\d+)', quizController.randomComprueba);
+router.get('/quizzes/randomplay', quizController.randomJuega);
 
 
 module.exports = router;
