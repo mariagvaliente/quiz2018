@@ -137,4 +137,10 @@ router.get('/quizzes/randomcheck/:quizId(\\d+)', quizController.randomComprueba)
 router.get('/quizzes/randomplay', quizController.randomJuega);
 
 
+//GET /quizzes/:quizId/tips/:tipId/edit
+router.get('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)/edit', sessionController.loginRequired,tipController.adminOrAuthorRequired,tipController.edit);
+
+//PUT /quizzes/:quizId/tips/:tipId
+router.put('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)', sessionController.loginRequired,tipController.adminOrAuthorRequired,tipController.update);
+
 module.exports = router;
